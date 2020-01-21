@@ -1,0 +1,40 @@
+<form class="form-inline waves-light">
+  <div class="md-form mt-0">
+    <input [(ngModel)]="searchInput" #ctrl=ngModel class="form-control mr-sm-2" type="text"  [ngModelOptions]="{standalone: true}" placeholder="Search">
+  </div>
+</form>
+<button (click)="this.searchCards(null);">search</button>
+
+<div *ngIf="!checkReprints" class="col-12 row">
+  <table class="col-12">
+    <tr>
+      <th>Nom</th>
+    </tr>
+    <tr (click)="c.countReprints==1?addToCollection(c):openCard(c.locName)" *ngFor="let c of cards">
+      <td>{{c.locName}}</td>
+    </tr>
+  </table>
+</div>
+
+
+<div *ngIf="checkReprints" class="col-12 row">
+  <table class="col-12">
+    <tr>
+      <th>Nom</th>
+    </tr>
+    <tr (click)="addToCollection(c)" *ngFor="let c of cards">
+      <td>{{c.locName}}</td>
+    </tr>
+  </table>
+</div>
+
+
+<hr>
+
+<h4>My Collection</h4>
+<div class="col-12 row">
+  <div *ngFor="let item of collection">
+    <img (click)="removeFromCollection(item)"  [alt]="item.locName" [src]="'http://cardmarket.com' + item.image" width="50%"/>
+  </div>
+</div>
+
