@@ -1,17 +1,14 @@
-<form class="form-inline waves-light">
-  <div class="md-form mt-0">
-    <input [(ngModel)]="searchInput" #ctrl=ngModel class="form-control mr-sm-2" type="text"  [ngModelOptions]="{standalone: true}" placeholder="Search">
-  </div>
-</form>
-<button (click)="this.searchCards(null);">search</button>
+<input class="form-control mr-sm-2" [(ngModel)]="userQuestion"
+       type="text" name="userQuestion" id="userQuestions"
+       (ngModelChange)="this.userQuestionUpdate.next($event)">
 
 <div *ngIf="!checkReprints" class="col-12 row">
   <table class="col-12">
     <tr>
       <th>Nom</th>
     </tr>
-    <tr (click)="c.countReprints==1?addToCollection(c):openCard(c.locName)" *ngFor="let c of cards">
-      <td>{{c.locName}}</td>
+    <tr (click)="c.countReprints===1?addToCollection(c):openCard(c.locName)" *ngFor="let c of cards">
+      <td style="cursor: pointer">{{c.locName}}</td>
     </tr>
   </table>
 </div>
@@ -21,9 +18,13 @@
   <table class="col-12">
     <tr>
       <th>Nom</th>
+      <th>Rareté</th>
+      <th>Extension</th>
     </tr>
-    <tr (click)="addToCollection(c)" *ngFor="let c of cards">
-      <td>{{c.locName}}</td>
+    <tr *ngFor="let c of cards" >
+    <td (click)="addToCollection(c)">{{c.locName}}</td>
+    <td>{{c.rarity}}</td>
+    <td>{{c.expansionName}}</td>
     </tr>
   </table>
 </div>
@@ -35,6 +36,9 @@
 <div class="col-12 row">
   <div *ngFor="let item of collection">
     <img (click)="removeFromCollection(item)"  [alt]="item.locName" [src]="'http://cardmarket.com' + item.image" width="50%"/>
+    <p>{{item.locName}}</p>
+    <p>{{item.expansionName}}</p>
+    <p>Nombre: {{item.count}}</p>
   </div>
 </div>
 

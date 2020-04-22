@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
 import {ApiResponse} from '../models/apiResponse';
 
 @Injectable({
@@ -13,9 +14,9 @@ export class RequestsService {
 
   http: HttpClient;
 
-  public getCards(input: string) {
+  public getCards(input: string): Observable<ApiResponse> {
     return this.http
-      .get('http://localhost:5000/get', {headers: {query: input}});
+      .get<ApiResponse>('http://localhost:5000/get', {headers: {query: input}});
   }
 
 }

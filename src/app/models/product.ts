@@ -19,4 +19,5 @@ export class Product {
   public countArticles: number;
   public countFoils: number;
   public link: Array<object>;
+  public count: number;
 }

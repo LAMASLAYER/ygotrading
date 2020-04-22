@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {RequestsService} from '../../services/requests.service';
 import {ApiResponse} from '../../models/apiResponse';
 import {Product} from '../../models/product';
+import {Observable, Subject} from 'rxjs';
+import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,12 +17,22 @@ export class DashboardComponent implements OnInit {
   private _collection: Array<Product>;
   private requestsService: RequestsService;
   private _checkReprints = false;
+  public input: string;
+  public userQuestion: string;
+  userQuestionUpdate = new Subject<string>();
 
 
   constructor(requestService: RequestsService) {
     this.requestsService = requestService;
     this.cards = new Array<Product>();
     this.collection = new Array<Product>();
+    // Debounce search.
+    this.userQuestionUpdate.pipe(
+      debounceTime(1500),
+      distinctUntilChanged())
+      .subscribe(value => {
+        this.searchCards(value);
+      });
   }
 
   ngOnInit() {
@@ -54,13 +66,27 @@ export class DashboardComponent implements OnInit {
   }
 
   public addToCollection(card: Product) {
-    this._collection.push(card);
+    let exists = false;
+    for (let i = 0; i < this.collection.length; i++) {
+      if (this.collection[i].idProduct === card.idProduct) {
+        exists = true;
+        this.collection[i].count += 1;
+      }
+    }
+    if (!exists) {
+      card.count = 1;
+      this._collection.push(card);
+    }
   }
 
   public removeFromCollection(card: Product) {
-    const index = this.collection.indexOf(card, 0);
-    if (index > -1) {
-      this.collection.splice(index, 1);
+    if (card.count === 1) {
+      const index = this.collection.indexOf(card, 0);
+      if (index > -1) {
+        this.collection.splice(index, 1);
+      }
+    } else {
+      card.count -= 1;
     }
   }
 
@@ -72,30 +98,27 @@ export class DashboardComponent implements OnInit {
     this._checkReprints = value;
   }
 
-  private searchCards(value: string) {
-    if (this.searchInput.length >= 4) {
-      value = this.searchInput;
+  public searchCards(value: string) {
+    if (value.length >= 4) {
       this.requestsService.getCards(value).subscribe(
         (res: ApiResponse) => {
           if (res != null) {
+            const products = res.product;
             const temp: Array<Product> = [];
-            console.log(res.product);
-            for (let i = 0; i + 1 < res.product.length;) {
-              if (res.product[i].countReprints > 1 && res.product[i].enName === res.product[i + 1].enName) {
-                temp.push(res.product[i]);
-                i += res.product[i].countReprints;
+            for (let i = 0; i + 1 < products.length;) {
+              if (products[i].countReprints > 1 && products[i].enName === products[i + 1].enName) {
+                temp.push(products[i]);
+                i += products[i].countReprints;
               } else {
-                temp.push(res.product[i]);
+                temp.push(products[i]);
                 i++;
               }
             }
-            temp.push(res.product[res.product.length - 1]);
-            console.log(temp);
             this.cards = temp;
           } else {
             this.cards = null;
           }
-          }
+        }
       );
     }
   }
